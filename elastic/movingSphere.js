@@ -1,6 +1,6 @@
 
-var Vector = require('./vector.js');
-var Constants = require('./config_constants.js');
+var Vector = require('../vector.js');
+var Constants = require('../config_constants.js');
 
 var _trunc = function (num) {
   return parseFloat(num.toFixed(4));
@@ -101,6 +101,11 @@ movingSphere.prototype.handleCollision = function (otherObj) {
 
   if (Constants.CONST_MASS) {
     mass1 = CONST_MASS;
+    mass2 = CONST_MASS;
+  }
+  else {
+    mass1 = this.mass;
+    mass2 = otherObj.mass;
   }
 
   if (this.vel[0] === 0 && otherObj.vel[0] === 0) {

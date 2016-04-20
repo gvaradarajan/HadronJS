@@ -3,7 +3,8 @@ var configConstants = {
   ELASTIC: true,
   CONST_DENSITY: null,
   CONST_MASS: null,
-  CONST_RADIUS: null
+  CONST_RADIUS: null,
+  SPACE_DIM: 2
 };
 
 
