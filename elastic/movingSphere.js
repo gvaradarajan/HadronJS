@@ -29,7 +29,6 @@ movingSphere.prototype.equals = function (otherObj) {
 
 movingSphere.prototype.move = function (coeffFriction, otherObjs) {
   this.radius = 20;
-  coeffFriction = coeffFriction || 0;
   var that = this;
   otherObjs.forEach(function (obj) {
     if (that.isCollidedWith(obj) && !that.equals(obj)) {
@@ -48,8 +47,15 @@ movingSphere.prototype.move = function (coeffFriction, otherObjs) {
   });
   this.pos[0] += this.vel[0];
   this.pos[1] += this.vel[1];
-  var Ybound = 750 - this.radius;
-  var Xbound = 400 - this.radius;
+  if (Constants.WALLS) {
+    this.detectWallCollision();
+  }
+  this.applyFriction();
+};
+
+movingSphere.prototype.detectWallCollision = function () {
+  var Ybound = Constants.DIM_Y - this.radius;
+  var Xbound = Constants.DIM_X - this.radius;
   var dimXRef = this.pos[0] > Xbound || this.pos[0] < 0 + this.radius;
   var dimYRef = this.pos[1] > Ybound || this.pos[1] < 0 + this.radius;
   if (dimXRef || dimYRef) {
@@ -57,6 +63,10 @@ movingSphere.prototype.move = function (coeffFriction, otherObjs) {
     this.pos[1] -= this.vel[1];
     this.bounce(dimXRef, dimYRef);
   }
+};
+
+movingSphere.prototype.applyFriction = function () {
+  coeffFriction = Constants.FRICTION_COEFF;
   this.vel[0] = this.vel[0] * Math.sqrt(1 - coeffFriction);
   this.vel[1] = this.vel[1] * Math.sqrt(1 - coeffFriction);
 };
