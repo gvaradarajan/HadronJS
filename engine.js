@@ -15,7 +15,7 @@ var engine = function (options, callback) {
 };
 
 var newOptions = {
-  FRICTION_COEFF: 0.0054,
+  FRICTION_COEFF: 0.0094,
   ELASTIC: true,
   WALLS: true,
   CONST_MASS: 50,
@@ -23,6 +23,7 @@ var newOptions = {
   DIM_Y: 750
 };
 
+// FRICTION_COEFF: 0.0054;
 
 engine(newOptions, function (Constants, Vector, movingSphere) {
   var canvas = document.getElementById('canvas');
