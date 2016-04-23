@@ -13,6 +13,29 @@ var movingSphere = function (settings) {
   this.color = settings.color;
 };
 
+movingSphere.createRandom = function (otherSpheres) {
+  var resultSphere;
+  var creationParams = {};
+  creationParams.color = "#FF0000";
+  creationParams.pos = [(Constants.DIM_X - 42) * Math.random() + 21,
+                        (Constants.DIM_Y - 42) * Math.random() + 21];
+  creationParams.vel = new Vector(Math.random() * 8, Math.random() * 8);
+  creationParams.radius = 20;
+  resultSphere = new movingSphere(creationParams);
+  var invalid = false;
+  for (var i = 0; i < otherSpheres.length; i++) {
+    if (resultSphere.isCollidedWith(otherSpheres[i])) {
+      invalid = true;
+    }
+  }
+  if (invalid) {
+    return movingSphere.createRandom(otherSpheres);
+  }
+  else {
+    return resultSphere;
+  }
+};
+
 movingSphere.prototype.draw = function (ctx) {
   ctx.fillStyle = this.color;
   ctx.beginPath();
@@ -27,26 +50,30 @@ movingSphere.prototype.equals = function (otherObj) {
   return false;
 };
 
-movingSphere.prototype.move = function (coeffFriction, otherObjs) {
-  this.radius = 20;
+movingSphere.prototype.move = function (otherObjs) {
+  // this.radius = 20;
   var that = this;
+  // debugger
   otherObjs.forEach(function (obj) {
     if (that.isCollidedWith(obj) && !that.equals(obj)) {
-      if (that.isGlancingWith(obj)) {
-        that.handleGlancingCollision(obj);
-      }
-      else {
-        if (obj.isStationary()) {
-          that.handleStationaryCollision(obj);
-        }
-        else {
-          that.handleCollision(obj);
-        }
-      }
+      // if (that.isGlancingWith(obj)) {
+      //   that.handleGlancingCollision(obj);
+      //   debugger
+      // }
+      // else {
+      //   if (obj.isStationary()) {
+      //     that.handleStationaryCollision(obj);
+      //   }
+      //   else {
+      //     that.handleCollision(obj);
+      //   }
+      // }
+      that.newHandleCollision(obj);
     }
   });
   this.pos[0] += this.vel[0];
   this.pos[1] += this.vel[1];
+  // debugger
   if (Constants.WALLS) {
     this.detectWallCollision();
   }
@@ -59,6 +86,7 @@ movingSphere.prototype.detectWallCollision = function () {
   var dimXRef = this.pos[0] > Xbound || this.pos[0] < 0 + this.radius;
   var dimYRef = this.pos[1] > Ybound || this.pos[1] < 0 + this.radius;
   if (dimXRef || dimYRef) {
+    // debugger
     this.pos[0] -= this.vel[0];
     this.pos[1] -= this.vel[1];
     this.bounce(dimXRef, dimYRef);
@@ -110,8 +138,8 @@ movingSphere.prototype.handleCollision = function (otherObj) {
   var mass2;
 
   if (Constants.CONST_MASS) {
-    mass1 = CONST_MASS;
-    mass2 = CONST_MASS;
+    mass1 = Constants.CONST_MASS;
+    mass2 = Constants.CONST_MASS;
   }
   else {
     mass1 = this.mass;
@@ -150,8 +178,8 @@ movingSphere.prototype.handleCollision = function (otherObj) {
   otherObj.vel[1] = _trunc(otherObj.vel[1]);
 
 //
-  // otherObj.vel[1] = -otherObj.vel[1];
-  // this.vel[1] = -this.vel[1];
+  otherObj.vel[1] = -otherObj.vel[1];
+  this.vel[1] = -this.vel[1];
 //
 
 };
@@ -214,6 +242,103 @@ movingSphere.prototype.handleGlancingCollision = function (otherObj) {
 
   this.vel[1] = -this.vel[1];
   otherObj.vel[1] = -otherObj.vel[1];
+
+};
+
+movingSphere.prototype.newHandleCollision = function (otherObj) {
+  var connVec = new Vector(this.pos[0] - otherObj.pos[0],
+                           this.pos[1] - otherObj.pos[1]);
+  var resultRotation = connVec.findTheta();
+
+  var mass1;
+  var mass2;
+
+  if (Constants.CONST_MASS) {
+    mass1 = Constants.CONST_MASS;
+    mass2 = Constants.CONST_MASS;
+  }
+  else {
+    mass1 = this.mass;
+    mass2 = otherObj.mass;
+  }
+
+  // var thisTheta = this.vel.getRelativeAngle(connVec);
+  // var otherTheta = otherObj.vel.getRelativeAngle(connVec);
+  var collAngle = Math.PI;
+
+  // debugger
+
+  // var thisVel = new Vector(_trunc(this.vel.mag() * Math.cos(thisTheta)),
+  //                          _trunc(this.vel.mag() * Math.sin(thisTheta)));
+  //
+  // var otherVel = new Vector(_trunc(otherObj.vel.mag() * Math.cos(otherTheta)),
+  //                           _trunc(otherObj.vel.mag() * Math.sin(otherTheta)));
+
+  var thisVel = this.vel.rotate(resultRotation);
+  var otherVel = otherObj.vel.rotate(resultRotation);
+
+
+  var angle1 = thisVel.findTheta();
+  var angle2 = otherVel.findTheta();
+  // debugger
+
+  this.vel[0] = thisVel.mag() *
+                _trunc(Math.cos(angle1-collAngle)) *
+                (mass1 - mass2);
+
+  this.vel[0] += 2 * mass2 * otherVel.mag() *
+                 _trunc(Math.cos(angle2-collAngle));
+
+  this.vel[1] = thisVel.mag() *
+                _trunc(Math.cos(angle1-collAngle)) *
+                (mass1 - mass2);
+
+  this.vel[1] += 2 * mass2 * otherVel.mag() *
+                 _trunc(Math.cos(angle2-collAngle));
+
+  this.vel[0] = _trunc(this.vel[0] / (mass1 + mass2)) * _trunc(Math.cos(collAngle));
+  this.vel[0] += thisVel.mag() *
+                 _trunc(Math.sin(angle1 - collAngle)) *
+                 _trunc(Math.cos(collAngle + (Math.PI / 2)));
+
+  this.vel[1] = _trunc(this.vel[1] / (mass1 + mass2)) * _trunc(Math.sin(collAngle));
+  this.vel[1] += thisVel.mag() *
+                 _trunc(Math.sin(angle1 - collAngle)) *
+                 _trunc(Math.sin(collAngle + (Math.PI / 2)));
+
+  otherObj.vel[0] = otherVel.mag() *
+                _trunc(Math.cos(angle2-collAngle)) *
+                (mass1 - mass2);
+
+  otherObj.vel[0] += 2 * mass2 * thisVel.mag() *
+                 _trunc(Math.cos(angle1-collAngle));
+
+  otherObj.vel[1] = otherVel.mag() *
+                _trunc(Math.cos(angle2-collAngle)) *
+                (mass1 - mass2);
+
+  otherObj.vel[1] += 2 * mass2 * thisVel.mag() *
+                 _trunc(Math.cos(angle1-collAngle));
+
+  otherObj.vel[0] = _trunc(otherObj.vel[0] / (mass1 + mass2)) * _trunc(Math.cos(collAngle));
+  otherObj.vel[0] += otherVel.mag() *
+                     _trunc(Math.sin(angle2 - collAngle)) *
+                     _trunc(Math.cos(collAngle + (Math.PI / 2)));
+
+  otherObj.vel[1] = _trunc(otherObj.vel[1] / (mass1 + mass2)) * _trunc(Math.sin(collAngle));
+  otherObj.vel[1] += otherVel.mag() *
+                     _trunc(Math.sin(angle2 - collAngle)) *
+                     _trunc(Math.sin(collAngle + (Math.PI / 2)));
+
+  // otherObj.vel[0] = _trunc(otherObj.vel[0]);
+  // otherObj.vel[1] = _trunc(otherObj.vel[1]);
+  otherObj.vel[1] = -otherObj.vel[1];
+  this.vel[1] = -this.vel[1];
+
+  this.vel = this.vel.rotate(-resultRotation);
+  otherObj.vel = otherObj.vel.rotate(-resultRotation);
+
+
 
 };
 

@@ -17,8 +17,10 @@ configConstants.setConstants = function (options) {
     return;
   }
   Object.keys(this).forEach(function (key) {
-    this[key] = options[key];
-  });
+    if (options[key] !== undefined) {
+      this[key] = options[key];
+    }
+  }.bind(this));
 };
 
 module.exports = configConstants;

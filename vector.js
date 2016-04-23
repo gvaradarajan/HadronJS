@@ -63,7 +63,7 @@ Vector.prototype.getRelativeAngle = function (vec) {
 
 Vector.prototype.rotate = function (angle) {
   var newX = this[0] * Math.cos(angle) - this[1] * Math.sin(angle);
-  var newY = this[0] * Math.sin(angle) - this[1] * Math.cos(angle);
+  var newY = this[0] * Math.sin(angle) + this[1] * Math.cos(angle);
   return new Vector(newX, newY);
 };
 
