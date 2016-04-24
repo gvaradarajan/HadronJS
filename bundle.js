@@ -98,11 +98,18 @@
 	    balls.forEach(function (ball) {
 	      ball.draw(c);
 	    });
-	    var checkedBalls = balls.slice();
+	    var uncheckedBalls = balls.slice();
 	    for (var i = 0; i < balls.length; i++) {
-	      checkedBalls.shift();
-	      balls[i].move(checkedBalls);
+	      uncheckedBalls.shift();
+	      for (var j = 0; j < uncheckedBalls.length; j++) {
+	        if (balls[i].isCollidedWith(uncheckedBalls[j]) && !balls[i].equals(uncheckedBalls[j])) {
+	          balls[i].handleCollision(uncheckedBalls[j]);
+	        }
+	      }
 	    }
+	    balls.forEach(function (ball) {
+	      ball.move();
+	    });
 	    // newObj.move([newObj2]);
 	    // newObj2.move([]);
 	  }, 20);
@@ -275,14 +282,14 @@
 	  return false;
 	};
 	
-	movingSphere.prototype.move = function (otherObjs) {
+	movingSphere.prototype.move = function () {
 	  var that = this;
 	  // debugger
-	  otherObjs.forEach(function (obj) {
-	    if (that.isCollidedWith(obj) && !that.equals(obj)) {
-	      that.handleCollision(obj);
-	    }
-	  });
+	  // otherObjs.forEach(function (obj) {
+	  //   if (that.isCollidedWith(obj) && !that.equals(obj)) {
+	  //     that.handleCollision(obj);
+	  //   }
+	  // });
 	  this.pos[0] += this.vel[0];
 	  this.pos[1] += this.vel[1];
 	  // debugger

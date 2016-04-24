@@ -52,11 +52,18 @@ engine(newOptions, function (Constants, Vector, movingSphere) {
     balls.forEach(function (ball) {
       ball.draw(c);
     });
-    var checkedBalls = balls.slice();
+    var uncheckedBalls = balls.slice();
     for (var i = 0; i < balls.length; i++) {
-      checkedBalls.shift();
-      balls[i].move(checkedBalls);
+      uncheckedBalls.shift();
+      for (var j = 0; j < uncheckedBalls.length; j++) {
+        if (balls[i].isCollidedWith(uncheckedBalls[j]) && !balls[i].equals(uncheckedBalls[j])) {
+          balls[i].handleCollision(uncheckedBalls[j]);
+        }
+      }
     }
+    balls.forEach(function (ball) {
+      ball.move();
+    });
     // newObj.move([newObj2]);
     // newObj2.move([]);
   }, 20);

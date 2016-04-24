@@ -50,14 +50,14 @@ movingSphere.prototype.equals = function (otherObj) {
   return false;
 };
 
-movingSphere.prototype.move = function (otherObjs) {
+movingSphere.prototype.move = function () {
   var that = this;
   // debugger
-  otherObjs.forEach(function (obj) {
-    if (that.isCollidedWith(obj) && !that.equals(obj)) {
-      that.handleCollision(obj);
-    }
-  });
+  // otherObjs.forEach(function (obj) {
+  //   if (that.isCollidedWith(obj) && !that.equals(obj)) {
+  //     that.handleCollision(obj);
+  //   }
+  // });
   this.pos[0] += this.vel[0];
   this.pos[1] += this.vel[1];
   // debugger
