@@ -61,7 +61,7 @@
 	};
 	
 	var newOptions = {
-	  FRICTION_COEFF: 0.0094,
+	  FRICTION_COEFF: 0.02,
 	  ELASTIC: true,
 	  WALLS: true,
 	  CONST_MASS: 50,
@@ -78,19 +78,27 @@
 	  // var vel1 = new Vector(0,3);
 	  // var vel2 = new Vector(0,-3);
 	  //
-	  // var newObj = new movingSphere({pos: [500, 40],
-	  //                                vel: vel1,
-	  //                                radius: 20,
-	  //                                color: "#00FF00"});
 	  // var newObj2 = new movingSphere({pos: [510, 600],
 	  //                                 vel: vel2,
 	  //                                 radius: 20,
 	  //                                 color: "#FF0000"});
 	  var balls = [];
 	  // debugger
-	  while (balls.length < 11) {
-	    balls.push(movingSphere.createRandom(balls));
-	  }
+	  var vel1 = new Vector(0, 0);
+	  var vel2 = new Vector(10, -10);
+	  var stillBall = new movingSphere({pos: [300, 300],
+	    vel: vel1,
+	    radius: 20,
+	    color: "#FF0000"});
+	  var movingBall = new movingSphere({pos: [200, 400],
+	    vel: vel2,
+	    radius: 20,
+	    color: "#00FF00"});
+	  balls.push(stillBall);
+	  balls.push(movingBall);
+	  // while (balls.length < 20) {
+	  //   balls.push(movingSphere.createRandom(balls));
+	  // }
 	  setInterval(function () {
 	    c.clearRect(0, 0, canvas.width, canvas.height);
 	    // newObj.draw(c);
@@ -169,6 +177,9 @@
 	  if (this[0] === 0) {
 	    if (this[1] > 0) {
 	      return Math.PI / 2;
+	    }
+	    else if (this[1] === 0) {
+	      return 0;
 	    }
 	    else {
 	      return -Math.PI / 2;
@@ -251,7 +262,7 @@
 	  creationParams.color = "#FF0000";
 	  creationParams.pos = [(Constants.DIM_X - 42) * Math.random() + 21,
 	                        (Constants.DIM_Y - 42) * Math.random() + 21];
-	  creationParams.vel = new Vector(Math.random() * 8, Math.random() * 8);
+	  creationParams.vel = new Vector(Math.random() * 12, Math.random() * 12);
 	  creationParams.radius = 20;
 	  resultSphere = new movingSphere(creationParams);
 	  var invalid = false;
@@ -373,10 +384,8 @@
 	  var thisVel = this.vel.rotate(resultRotation);
 	  var otherVel = otherObj.vel.rotate(resultRotation);
 	
-	
 	  var angle1 = thisVel.findTheta();
 	  var angle2 = otherVel.findTheta();
-	  // debugger
 	
 	  this.vel[0] = thisVel.mag() *
 	                _trunc(Math.cos(angle1-collAngle)) *
@@ -432,7 +441,7 @@
 	  this.vel = this.vel.rotate(-resultRotation);
 	  otherObj.vel = otherObj.vel.rotate(-resultRotation);
 	
-	
+	  debugger
 	
 	};
 	

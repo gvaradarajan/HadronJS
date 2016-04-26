@@ -15,7 +15,7 @@ var engine = function (options, callback) {
 };
 
 var newOptions = {
-  FRICTION_COEFF: 0.0094,
+  FRICTION_COEFF: 0.02,
   ELASTIC: true,
   WALLS: true,
   CONST_MASS: 50,
@@ -32,19 +32,27 @@ engine(newOptions, function (Constants, Vector, movingSphere) {
   // var vel1 = new Vector(0,3);
   // var vel2 = new Vector(0,-3);
   //
-  // var newObj = new movingSphere({pos: [500, 40],
-  //                                vel: vel1,
-  //                                radius: 20,
-  //                                color: "#00FF00"});
   // var newObj2 = new movingSphere({pos: [510, 600],
   //                                 vel: vel2,
   //                                 radius: 20,
   //                                 color: "#FF0000"});
   var balls = [];
   // debugger
-  while (balls.length < 11) {
-    balls.push(movingSphere.createRandom(balls));
-  }
+  var vel1 = new Vector(0, 0);
+  var vel2 = new Vector(10, -10);
+  var stillBall = new movingSphere({pos: [300, 300],
+    vel: vel1,
+    radius: 20,
+    color: "#FF0000"});
+  var movingBall = new movingSphere({pos: [200, 400],
+    vel: vel2,
+    radius: 20,
+    color: "#00FF00"});
+  balls.push(stillBall);
+  balls.push(movingBall);
+  // while (balls.length < 20) {
+  //   balls.push(movingSphere.createRandom(balls));
+  // }
   setInterval(function () {
     c.clearRect(0, 0, canvas.width, canvas.height);
     // newObj.draw(c);

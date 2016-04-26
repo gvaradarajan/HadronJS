@@ -14,6 +14,9 @@ Vector.prototype.findTheta = function () {
     if (this[1] > 0) {
       return Math.PI / 2;
     }
+    else if (this[1] === 0) {
+      return 0;
+    }
     else {
       return -Math.PI / 2;
     }
