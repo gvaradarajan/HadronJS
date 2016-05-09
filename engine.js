@@ -15,10 +15,11 @@ var engine = function (options, callback) {
 };
 
 var newOptions = {
-  FRICTION_COEFF: 0.02,
+  FRICTION_COEFF: 0,
   ELASTIC: true,
   WALLS: true,
   CONST_MASS: 50,
+  // CONST_DENSITY: 0.0025,
   DIM_X: 750,
   DIM_Y: 750
 };
@@ -29,52 +30,44 @@ engine(newOptions, function (Constants, Vector, movingSphere) {
   var canvas = document.getElementById('canvas');
   var c = canvas.getContext('2d');
   Constants.setConstants(newOptions);
-  // var vel1 = new Vector(0,3);
-  // var vel2 = new Vector(0,-3);
-  //
-  // var newObj2 = new movingSphere({pos: [510, 600],
-  //                                 vel: vel2,
-  //                                 radius: 20,
-  //                                 color: "#FF0000"});
   var balls = [];
-  // debugger
-  var vel1 = new Vector(0, 0);
-  var vel2 = new Vector(10, -10);
-  var stillBall = new movingSphere({pos: [300, 300],
-    vel: vel1,
-    radius: 20,
-    color: "#FF0000"});
-  var movingBall = new movingSphere({pos: [200, 400],
-    vel: vel2,
-    radius: 20,
-    color: "#00FF00"});
-  balls.push(stillBall);
-  balls.push(movingBall);
-  // while (balls.length < 20) {
-  //   balls.push(movingSphere.createRandom(balls));
-  // }
-  setInterval(function () {
+  while (balls.length < 20) {
+    balls.push(movingSphere.createRandom(balls));
+  }
+  var runSimFrame = function () {
     c.clearRect(0, 0, canvas.width, canvas.height);
-    // newObj.draw(c);
-    // newObj2.draw(c);
+    var totalKE = 0;
+    var mass = arguments[0].CONST_MASS;
     balls.forEach(function (ball) {
       ball.draw(c);
+      totalKE += ball.vel.norm();
     });
+    totalKE = totalKE * mass / 2;
+    document.getElementById('kE').innerHTML = "Total KE of System: " + Math.round(totalKE);
     var uncheckedBalls = balls.slice();
     for (var i = 0; i < balls.length; i++) {
+      balls[i].move();
       uncheckedBalls.shift();
       for (var j = 0; j < uncheckedBalls.length; j++) {
         if (balls[i].isCollidedWith(uncheckedBalls[j]) && !balls[i].equals(uncheckedBalls[j])) {
+          // balls[i].correctOverlap(uncheckedBalls[j]);
           balls[i].handleCollision(uncheckedBalls[j]);
         }
       }
     }
-    balls.forEach(function (ball) {
-      ball.move();
-    });
-    // newObj.move([newObj2]);
-    // newObj2.move([]);
-  }, 20);
+  };
+  var sim = setInterval(runSimFrame.bind(this, Constants), 20);
+  var restart = function () {
+    clearInterval(sim);
+    balls = [];
+    while (balls.length < 20) {
+      balls.push(movingSphere.createRandom(balls));
+    }
+    var friction = parseFloat(document.getElementById("friction").value);
+    Constants.FRICTION_COEFF = friction;
+    sim = setInterval(runSimFrame.bind(this, Constants), 20);
+  };
+  document.getElementById("restart").addEventListener("click", restart);
 });
 
 // module.exports = engine;

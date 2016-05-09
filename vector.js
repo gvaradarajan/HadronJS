@@ -64,6 +64,16 @@ Vector.prototype.getRelativeAngle = function (vec) {
   return Math.acos(_trunc(innerVal));
 };
 
+Vector.prototype.unitize = function () {
+  if (this.mag() === 0) {
+    return new Vector(0, 0);
+  }
+  var dir = this.findTheta();
+  var newX = Math.cos(dir);
+  var newY = Math.sin(dir);
+  return new Vector(newX, newY);
+};
+
 Vector.prototype.rotate = function (angle) {
   var newX = this[0] * Math.cos(angle) - this[1] * Math.sin(angle);
   var newY = this[0] * Math.sin(angle) + this[1] * Math.cos(angle);
