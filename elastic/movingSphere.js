@@ -18,12 +18,12 @@ movingSphere.createRandom = function (otherSpheres) {
   var resultSphere;
   var creationParams = {};
   var density = Constants.CONST_DENSITY;
-  var radius = (Math.random() * 15) + 10;
+  var radius = (Math.random() * 10) + 10;
   var mass = Math.pow(radius, 3) * (4/3) * Math.PI * density;
-  creationParams.color = "#FF0000";
+  creationParams.color = "#FF" + Math.round((Math.random() * 9999));
   creationParams.pos = [(Constants.DIM_X - 42) * Math.random() + 21,
                         (Constants.DIM_Y - 42) * Math.random() + 21];
-  creationParams.vel = new Vector(Math.random() * 7, Math.random() * 7);
+  creationParams.vel = new Vector(Math.random() * 3, Math.random() * 3);
   creationParams.radius = radius;
   creationParams.mass = mass;
   resultSphere = new movingSphere(creationParams);
@@ -37,6 +37,7 @@ movingSphere.createRandom = function (otherSpheres) {
     return movingSphere.createRandom(otherSpheres);
   }
   else {
+    // debugger;
     return resultSphere;
   }
 };
@@ -84,12 +85,9 @@ movingSphere.prototype.detectWallCollisionY = function () {
 };
 
 movingSphere.prototype.handleWallCollision = function () {
-  // var Ybound = Constants.DIM_Y - this.radius;
-  // var Xbound = Constants.DIM_X - this.radius;
   var dimXRef = this.detectWallCollisionX();
   var dimYRef = this.detectWallCollisionY();
   if (dimXRef || dimYRef) {
-    // debugger
     this.pos[0] -= this.vel[0];
     this.pos[1] -= this.vel[1];
     this.bounce(dimXRef, dimYRef);
@@ -136,26 +134,44 @@ movingSphere.prototype.handleStationaryCollision = function (stillObj) {
 };
 
 movingSphere.prototype.correctOverlap = function (otherObj) {
-  var thisUnitVel = this.vel.unitize();
-  var otherUnitVel = otherObj.vel.unitize();
+  // var thisUnitVel = this.vel.unitize();
+  // var otherUnitVel = otherObj.vel.unitize();
   var connVec = new Vector(this.pos[0] - otherObj.pos[0],
                            this.pos[1] - otherObj.pos[1]);
   while (connVec.mag() <= this.radius + otherObj.radius) {
     if (!this.detectWallCollisionX() && !this.detectWallCollisionY()) {
-      this.pos[0] -= thisUnitVel[0];
-      this.pos[1] -= thisUnitVel[1];
+      // this.pos[0] -= thisUnitVel[0];
+      // this.pos[1] -= thisUnitVel[1];
+      this.pos[0] -= this.vel[0];
+      this.pos[1] -= this.vel[1];
     }
     if (!otherObj.detectWallCollisionX() && otherObj.detectWallCollisionY()) {
-      otherObj.pos[0] -= otherUnitVel[0];
-      otherObj.pos[1] -= otherUnitVel[1];
+      otherObj.pos[0] -= otherObj.vel[0];
+      otherObj.pos[1] -= otherObj.vel[1];
+      // otherObj.pos[0] -= otherUnitVel[0];
+      // otherObj.pos[1] -= otherUnitVel[1];
     }
     connVec[0] = this.pos[0] - otherObj.pos[0];
     connVec[1] = this.pos[1] - otherObj.pos[1];
   }
 };
 
+movingSphere.prototype.kineticEnergy = function () {
+  return this.mass * this.vel.norm() / 2;
+};
+
+
 movingSphere.prototype.handleCollision = function (otherObj) {
   // this.correctOverlap(otherObj);
+
+  // if (this.vel[0]*otherObj.vel[0] < 0 && this.vel[1]*otherObj.vel[1] < 0) {
+  //   return;
+  // }
+
+  var totalKEbefore = this.kineticEnergy() + otherObj.kineticEnergy();
+
+  var formerThisVel = this.vel;
+  var formerOtherVel = otherObj.vel;
 
   var connVec = new Vector(this.pos[0] - otherObj.pos[0],
                            this.pos[1] - otherObj.pos[1]);
@@ -177,6 +193,14 @@ movingSphere.prototype.handleCollision = function (otherObj) {
 
   var thisVel = this.vel.rotate(resultRotation);
   var otherVel = otherObj.vel.rotate(resultRotation);
+
+  // var newThisCoord = new Vector(this.pos[0], this.pos[1]);
+  // var newOtherCoord = new Vector(otherObj.pos[0], otherObj.pos[1]);
+  // newThisCoord = newThisCoord.rotate(resultRotation);
+  // newOtherCoord = newOtherCoord.rotate(resultRotation);
+  // if (!thisVel.willIntersect(otherVel, newThisCoord, newOtherCoord)) {
+  //   return;
+  // }
 
   var angle1 = thisVel.findTheta();
   var angle2 = otherVel.findTheta();
@@ -207,16 +231,16 @@ movingSphere.prototype.handleCollision = function (otherObj) {
 
   otherObj.vel[0] = otherVel.mag() *
                 _trunc(Math.cos(angle2-collAngle)) *
-                (mass1 - mass2);
+                (mass2 - mass1);
 
-  otherObj.vel[0] += 2 * mass2 * thisVel.mag() *
+  otherObj.vel[0] += 2 * mass1 * thisVel.mag() *
                  _trunc(Math.cos(angle1-collAngle));
 
   otherObj.vel[1] = otherVel.mag() *
                 _trunc(Math.cos(angle2-collAngle)) *
-                (mass1 - mass2);
+                (mass2 - mass1);
 
-  otherObj.vel[1] += 2 * mass2 * thisVel.mag() *
+  otherObj.vel[1] += 2 * mass1 * thisVel.mag() *
                  _trunc(Math.cos(angle1-collAngle));
 
   otherObj.vel[0] = (otherObj.vel[0] / (mass1 + mass2)) * _trunc(Math.cos(collAngle));
@@ -235,28 +259,11 @@ movingSphere.prototype.handleCollision = function (otherObj) {
   this.vel = this.vel.rotate(-resultRotation);
   otherObj.vel = otherObj.vel.rotate(-resultRotation);
 
-  // while (this.isCollidedWith(otherObj)) {
-  //   var adjustThis = this.vel.unitize();
-  //   var adjustOther = otherObj.vel.unitize();
-  //   this.pos[0] += adjustThis[0];
-  //   this.pos[1] += adjustThis[1];
-  //   otherObj.pos[0] += adjustOther[0];
-  //   otherObj.pos[1] += adjustOther[1];
-  //   var Ybound = Constants.DIM_Y - this.radius;
-  //   var Xbound = Constants.DIM_X - this.radius;
-  //   var dimXRef = this.pos[0] > Xbound || this.pos[0] < 0 + this.radius;
-  //   var dimYRef = this.pos[1] > Ybound || this.pos[1] < 0 + this.radius;
-  //   if (dimXRef || dimYRef) {
-  //     // debugger
-  //     this.pos[0] -= adjustThis[0];
-  //     this.pos[1] -= adjustThis[1];
-  //     otherObj.pos[0] -= adjustOther[0];
-  //     otherObj.pos[1] -= adjustOther[1];
-  //     this.bounce(dimXRef, dimYRef);
-  //   }
-  // }
+  var totalKEafter = this.kineticEnergy() + otherObj.kineticEnergy();
 
-  // return adjustFlag;
+  if (Math.abs(Math.round(totalKEafter - totalKEbefore)) > 1) {
+    // debugger
+  }
 
 };
 

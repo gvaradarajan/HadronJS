@@ -74,6 +74,21 @@ Vector.prototype.unitize = function () {
   return new Vector(newX, newY);
 };
 
+Vector.prototype.willIntersect = function (otherVec, thisPos, otherPos) {
+  var denom = (this[1] / this[0]) - (otherVec[1] / otherVec[0]);
+  var x = (otherPos[1] - thisPos[1]) +
+          (this[1] / this[0]) * (thisPos[0]) +
+          (otherVec[1] / otherVec[0]) * (otherPos[0]);
+  if (denom === 0) {
+    return true;
+  }
+  x = x / denom;
+  if (x >= 0) {
+    return true;
+  }
+  return false;
+};
+
 Vector.prototype.rotate = function (angle) {
   var newX = this[0] * Math.cos(angle) - this[1] * Math.sin(angle);
   var newY = this[0] * Math.sin(angle) + this[1] * Math.cos(angle);

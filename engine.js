@@ -14,17 +14,19 @@ var engine = function (options, callback) {
 
 };
 
+
+// DEMO: A Basic Illustration of How The Engine Can Be Used
+
+
 var newOptions = {
   FRICTION_COEFF: 0,
   ELASTIC: true,
   WALLS: true,
-  CONST_MASS: 50,
-  // CONST_DENSITY: 0.0025,
+  // CONST_MASS: 50,
+  CONST_DENSITY: 0.00025,
   DIM_X: 750,
   DIM_Y: 750
 };
-
-// FRICTION_COEFF: 0.0054;
 
 engine(newOptions, function (Constants, Vector, movingSphere) {
   var canvas = document.getElementById('canvas');
@@ -40,9 +42,12 @@ engine(newOptions, function (Constants, Vector, movingSphere) {
     var mass = arguments[0].CONST_MASS;
     balls.forEach(function (ball) {
       ball.draw(c);
-      totalKE += ball.vel.norm();
+      totalKE += ball.mass * ball.vel.norm();
+      if (totalKE === 0) {
+        debugger
+      }
     });
-    totalKE = totalKE * mass / 2;
+    totalKE = totalKE / 2;
     document.getElementById('kE').innerHTML = "Total KE of System: " + Math.round(totalKE);
     var uncheckedBalls = balls.slice();
     for (var i = 0; i < balls.length; i++) {
@@ -50,7 +55,6 @@ engine(newOptions, function (Constants, Vector, movingSphere) {
       uncheckedBalls.shift();
       for (var j = 0; j < uncheckedBalls.length; j++) {
         if (balls[i].isCollidedWith(uncheckedBalls[j]) && !balls[i].equals(uncheckedBalls[j])) {
-          // balls[i].correctOverlap(uncheckedBalls[j]);
           balls[i].handleCollision(uncheckedBalls[j]);
         }
       }
