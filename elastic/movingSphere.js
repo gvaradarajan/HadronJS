@@ -18,12 +18,12 @@ movingSphere.createRandom = function (otherSpheres) {
   var resultSphere;
   var creationParams = {};
   var density = Constants.CONST_DENSITY;
-  var radius = (Math.random() * 10) + 10;
+  var radius = (Math.random() * 15) + 10;
   var mass = Math.pow(radius, 3) * (4/3) * Math.PI * density;
   creationParams.color = "#FF" + Math.round((Math.random() * 9999));
   creationParams.pos = [(Constants.DIM_X - 42) * Math.random() + 21,
                         (Constants.DIM_Y - 42) * Math.random() + 21];
-  creationParams.vel = new Vector(Math.random() * 3, Math.random() * 3);
+  creationParams.vel = new Vector(Math.random() * 7, Math.random() * 7);
   creationParams.radius = radius;
   creationParams.mass = mass;
   resultSphere = new movingSphere(creationParams);
