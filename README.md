@@ -65,6 +65,11 @@ otherObj.vel = otherObj.vel.rotate(-resultRotation);
 ```
 This code handles all possible cases of elastic collisions.
 
+###Demo
+
+[A simulation demo](http://www.gauthamvaradarajan.com/HadronJS)
+[Browser Game built on HadronJS](http://www.gauthamvaradarajan.com/Pool)
+
 ###Upcoming features:
 * [ ] Support for inelastic collisions
 * [ ] Support for electromagnetic and gravitational interaction
