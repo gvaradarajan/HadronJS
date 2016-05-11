@@ -14,7 +14,8 @@ var engine = function (options, callback) {
 };
 
 
-// DEMO: A Basic Illustration of How The Engine Can Be Used
+// DEMO: A Basic Illustration of How The Engine Can Be Used. Delete the code
+//below and provide your own callback to the engine
 
 
 var newOptions = {
@@ -42,9 +43,6 @@ engine(newOptions, function (Constants, Vector, movingSphere) {
     balls.forEach(function (ball) {
       ball.draw(c);
       totalKE += ball.mass * ball.vel.norm();
-      if (totalKE === 0) {
-        debugger
-      }
     });
     totalKE = totalKE / 2;
     document.getElementById('kE').innerHTML = "Total KE of System: " + Math.round(totalKE);
