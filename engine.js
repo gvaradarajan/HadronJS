@@ -5,7 +5,6 @@ var engine = function (options, callback) {
   var Vector = require('./vector.js');
   var movingSphere;
 
-  // this.constants = Constants.setConstants(options);
   if (Constants.ELASTIC === true) {
     movingSphere = require('./elastic/movingSphere.js');
   }

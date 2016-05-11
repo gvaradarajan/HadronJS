@@ -51,7 +51,6 @@
 	  var Vector = __webpack_require__(2);
 	  var movingSphere;
 	
-	  // this.constants = Constants.setConstants(options);
 	  if (Constants.ELASTIC === true) {
 	    movingSphere = __webpack_require__(3);
 	  }
@@ -302,7 +301,6 @@
 	    return movingSphere.createRandom(otherSpheres);
 	  }
 	  else {
-	    // debugger;
 	    return resultSphere;
 	  }
 	};
@@ -398,23 +396,25 @@
 	  }
 	};
 	
+	// correctOverlap intended to fix "sticky balls bug", needs tweaking
+	
 	movingSphere.prototype.correctOverlap = function (otherObj) {
-	  // var thisUnitVel = this.vel.unitize();
-	  // var otherUnitVel = otherObj.vel.unitize();
+	  var thisUnitVel = this.vel.unitize();
+	  var otherUnitVel = otherObj.vel.unitize();
 	  var connVec = new Vector(this.pos[0] - otherObj.pos[0],
 	                           this.pos[1] - otherObj.pos[1]);
 	  while (connVec.mag() <= this.radius + otherObj.radius) {
 	    if (!this.detectWallCollisionX() && !this.detectWallCollisionY()) {
-	      // this.pos[0] -= thisUnitVel[0];
-	      // this.pos[1] -= thisUnitVel[1];
+	      this.pos[1] -= thisUnitVel[1];
+	      this.pos[0] -= thisUnitVel[0];
 	      this.pos[0] -= this.vel[0];
 	      this.pos[1] -= this.vel[1];
 	    }
 	    if (!otherObj.detectWallCollisionX() && otherObj.detectWallCollisionY()) {
 	      otherObj.pos[0] -= otherObj.vel[0];
 	      otherObj.pos[1] -= otherObj.vel[1];
-	      // otherObj.pos[0] -= otherUnitVel[0];
-	      // otherObj.pos[1] -= otherUnitVel[1];
+	      otherObj.pos[0] -= otherUnitVel[0];
+	      otherObj.pos[1] -= otherUnitVel[1];
 	    }
 	    connVec[0] = this.pos[0] - otherObj.pos[0];
 	    connVec[1] = this.pos[1] - otherObj.pos[1];
@@ -427,13 +427,6 @@
 	
 	
 	movingSphere.prototype.handleCollision = function (otherObj) {
-	  // this.correctOverlap(otherObj);
-	
-	  // if (this.vel[0]*otherObj.vel[0] < 0 && this.vel[1]*otherObj.vel[1] < 0) {
-	  //   return;
-	  // }
-	
-	  var totalKEbefore = this.kineticEnergy() + otherObj.kineticEnergy();
 	
 	  var formerThisVel = this.vel;
 	  var formerOtherVel = otherObj.vel;
@@ -459,61 +452,37 @@
 	  var thisVel = this.vel.rotate(resultRotation);
 	  var otherVel = otherObj.vel.rotate(resultRotation);
 	
-	  // var newThisCoord = new Vector(this.pos[0], this.pos[1]);
-	  // var newOtherCoord = new Vector(otherObj.pos[0], otherObj.pos[1]);
-	  // newThisCoord = newThisCoord.rotate(resultRotation);
-	  // newOtherCoord = newOtherCoord.rotate(resultRotation);
-	  // if (!thisVel.willIntersect(otherVel, newThisCoord, newOtherCoord)) {
-	  //   return;
-	  // }
-	
 	  var angle1 = thisVel.findTheta();
 	  var angle2 = otherVel.findTheta();
 	
-	  this.vel[0] = thisVel.mag() *
-	                _trunc(Math.cos(angle1-collAngle)) *
-	                (mass1 - mass2);
+	  var firstTermThis = (thisVel.mag() *
+	                       _trunc(Math.cos(angle1-collAngle)) *
+	                      (mass1 - mass2) +
+	                      (2 * mass2 * otherVel.mag() *
+	                       _trunc(Math.cos(angle2-collAngle)))) / (mass1 + mass2);
 	
-	  this.vel[0] += 2 * mass2 * otherVel.mag() *
-	                 _trunc(Math.cos(angle2-collAngle));
-	
-	  this.vel[1] = thisVel.mag() *
-	                _trunc(Math.cos(angle1-collAngle)) *
-	                (mass1 - mass2);
-	
-	  this.vel[1] += 2 * mass2 * otherVel.mag() *
-	                 _trunc(Math.cos(angle2-collAngle));
-	
-	  this.vel[0] = (this.vel[0] / (mass1 + mass2)) * _trunc(Math.cos(collAngle));
+	  this.vel[0] = firstTermThis * _trunc(Math.cos(collAngle));
 	  this.vel[0] += thisVel.mag() *
 	                 _trunc(Math.sin(angle1 - collAngle)) *
 	                 _trunc(Math.cos(collAngle + (Math.PI / 2)));
 	
-	  this.vel[1] = (this.vel[1] / (mass1 + mass2)) * _trunc(Math.sin(collAngle));
+	  this.vel[1] = firstTermThis * _trunc(Math.sin(collAngle));
 	  this.vel[1] += thisVel.mag() *
 	                 _trunc(Math.sin(angle1 - collAngle)) *
 	                 _trunc(Math.sin(collAngle + (Math.PI / 2)));
 	
-	  otherObj.vel[0] = otherVel.mag() *
-	                _trunc(Math.cos(angle2-collAngle)) *
-	                (mass2 - mass1);
+	  var firstTermOther = (otherVel.mag() *
+	                       _trunc(Math.cos(angle2-collAngle)) *
+	                       (mass2 - mass1) +
+	                       (2 * mass1 * thisVel.mag() *
+	                       _trunc(Math.cos(angle1-collAngle)))) / (mass1 + mass2);
 	
-	  otherObj.vel[0] += 2 * mass1 * thisVel.mag() *
-	                 _trunc(Math.cos(angle1-collAngle));
-	
-	  otherObj.vel[1] = otherVel.mag() *
-	                _trunc(Math.cos(angle2-collAngle)) *
-	                (mass2 - mass1);
-	
-	  otherObj.vel[1] += 2 * mass1 * thisVel.mag() *
-	                 _trunc(Math.cos(angle1-collAngle));
-	
-	  otherObj.vel[0] = (otherObj.vel[0] / (mass1 + mass2)) * _trunc(Math.cos(collAngle));
+	  otherObj.vel[0] = firstTermOther * _trunc(Math.cos(collAngle));
 	  otherObj.vel[0] += otherVel.mag() *
 	                     _trunc(Math.sin(angle2 - collAngle)) *
 	                     _trunc(Math.cos(collAngle + (Math.PI / 2)));
 	
-	  otherObj.vel[1] = (otherObj.vel[1] / (mass1 + mass2)) * _trunc(Math.sin(collAngle));
+	  otherObj.vel[1] = firstTermOther * _trunc(Math.sin(collAngle));
 	  otherObj.vel[1] += otherVel.mag() *
 	                     _trunc(Math.sin(angle2 - collAngle)) *
 	                     _trunc(Math.sin(collAngle + (Math.PI / 2)));
@@ -523,12 +492,6 @@
 	
 	  this.vel = this.vel.rotate(-resultRotation);
 	  otherObj.vel = otherObj.vel.rotate(-resultRotation);
-	
-	  var totalKEafter = this.kineticEnergy() + otherObj.kineticEnergy();
-	
-	  if (Math.abs(Math.round(totalKEafter - totalKEbefore)) > 1) {
-	    // debugger
-	  }
 	
 	};
 	
