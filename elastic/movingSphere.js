@@ -132,31 +132,6 @@ movingSphere.prototype.handleStationaryCollision = function (stillObj) {
   }
 };
 
-// correctOverlap intended to fix "sticky balls bug", needs tweaking
-
-movingSphere.prototype.correctOverlap = function (otherObj) {
-  var thisUnitVel = this.vel.unitize();
-  var otherUnitVel = otherObj.vel.unitize();
-  var connVec = new Vector(this.pos[0] - otherObj.pos[0],
-                           this.pos[1] - otherObj.pos[1]);
-  while (connVec.mag() <= this.radius + otherObj.radius) {
-    if (!this.detectWallCollisionX() && !this.detectWallCollisionY()) {
-      this.pos[1] -= thisUnitVel[1];
-      this.pos[0] -= thisUnitVel[0];
-      this.pos[0] -= this.vel[0];
-      this.pos[1] -= this.vel[1];
-    }
-    if (!otherObj.detectWallCollisionX() && otherObj.detectWallCollisionY()) {
-      otherObj.pos[0] -= otherObj.vel[0];
-      otherObj.pos[1] -= otherObj.vel[1];
-      otherObj.pos[0] -= otherUnitVel[0];
-      otherObj.pos[1] -= otherUnitVel[1];
-    }
-    connVec[0] = this.pos[0] - otherObj.pos[0];
-    connVec[1] = this.pos[1] - otherObj.pos[1];
-  }
-};
-
 movingSphere.prototype.kineticEnergy = function () {
   return this.mass * this.vel.norm() / 2;
 };
