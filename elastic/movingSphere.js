@@ -132,6 +132,7 @@ movingSphere.prototype.handleStationaryCollision = function (stillObj) {
   }
 };
 
+
 movingSphere.prototype.kineticEnergy = function () {
   return this.mass * this.vel.norm() / 2;
 };
@@ -173,11 +174,13 @@ movingSphere.prototype.handleCollision = function (otherObj) {
                        _trunc(Math.cos(angle2-collAngle)))) / (mass1 + mass2);
 
   this.vel[0] = firstTermThis * _trunc(Math.cos(collAngle));
+
   this.vel[0] += thisVel.mag() *
                  _trunc(Math.sin(angle1 - collAngle)) *
                  _trunc(Math.cos(collAngle + (Math.PI / 2)));
 
   this.vel[1] = firstTermThis * _trunc(Math.sin(collAngle));
+
   this.vel[1] += thisVel.mag() *
                  _trunc(Math.sin(angle1 - collAngle)) *
                  _trunc(Math.sin(collAngle + (Math.PI / 2)));
@@ -189,11 +192,13 @@ movingSphere.prototype.handleCollision = function (otherObj) {
                        _trunc(Math.cos(angle1-collAngle)))) / (mass1 + mass2);
 
   otherObj.vel[0] = firstTermOther * _trunc(Math.cos(collAngle));
+
   otherObj.vel[0] += otherVel.mag() *
                      _trunc(Math.sin(angle2 - collAngle)) *
                      _trunc(Math.cos(collAngle + (Math.PI / 2)));
 
   otherObj.vel[1] = firstTermOther * _trunc(Math.sin(collAngle));
+
   otherObj.vel[1] += otherVel.mag() *
                      _trunc(Math.sin(angle2 - collAngle)) *
                      _trunc(Math.sin(collAngle + (Math.PI / 2)));

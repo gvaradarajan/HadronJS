@@ -51,6 +51,7 @@
 	  var Vector = __webpack_require__(2);
 	  var movingSphere;
 	
+	
 	  if (Constants.ELASTIC === true) {
 	    movingSphere = __webpack_require__(3);
 	  }
@@ -59,9 +60,8 @@
 	
 	};
 	
-	
 	// DEMO: A Basic Illustration of How The Engine Can Be Used. Delete the code
-	//below and provide your own callback to the engine
+	//below and provide your own callback to the engine.
 	
 	
 	var newOptions = {
@@ -394,30 +394,6 @@
 	  }
 	};
 	
-	// correctOverlap intended to fix "sticky balls bug", needs tweaking
-	
-	movingSphere.prototype.correctOverlap = function (otherObj) {
-	  var thisUnitVel = this.vel.unitize();
-	  var otherUnitVel = otherObj.vel.unitize();
-	  var connVec = new Vector(this.pos[0] - otherObj.pos[0],
-	                           this.pos[1] - otherObj.pos[1]);
-	  while (connVec.mag() <= this.radius + otherObj.radius) {
-	    if (!this.detectWallCollisionX() && !this.detectWallCollisionY()) {
-	      this.pos[1] -= thisUnitVel[1];
-	      this.pos[0] -= thisUnitVel[0];
-	      this.pos[0] -= this.vel[0];
-	      this.pos[1] -= this.vel[1];
-	    }
-	    if (!otherObj.detectWallCollisionX() && otherObj.detectWallCollisionY()) {
-	      otherObj.pos[0] -= otherObj.vel[0];
-	      otherObj.pos[1] -= otherObj.vel[1];
-	      otherObj.pos[0] -= otherUnitVel[0];
-	      otherObj.pos[1] -= otherUnitVel[1];
-	    }
-	    connVec[0] = this.pos[0] - otherObj.pos[0];
-	    connVec[1] = this.pos[1] - otherObj.pos[1];
-	  }
-	};
 	
 	movingSphere.prototype.kineticEnergy = function () {
 	  return this.mass * this.vel.norm() / 2;
@@ -460,11 +436,13 @@
 	                       _trunc(Math.cos(angle2-collAngle)))) / (mass1 + mass2);
 	
 	  this.vel[0] = firstTermThis * _trunc(Math.cos(collAngle));
+	
 	  this.vel[0] += thisVel.mag() *
 	                 _trunc(Math.sin(angle1 - collAngle)) *
 	                 _trunc(Math.cos(collAngle + (Math.PI / 2)));
 	
 	  this.vel[1] = firstTermThis * _trunc(Math.sin(collAngle));
+	
 	  this.vel[1] += thisVel.mag() *
 	                 _trunc(Math.sin(angle1 - collAngle)) *
 	                 _trunc(Math.sin(collAngle + (Math.PI / 2)));
@@ -476,11 +454,13 @@
 	                       _trunc(Math.cos(angle1-collAngle)))) / (mass1 + mass2);
 	
 	  otherObj.vel[0] = firstTermOther * _trunc(Math.cos(collAngle));
+	
 	  otherObj.vel[0] += otherVel.mag() *
 	                     _trunc(Math.sin(angle2 - collAngle)) *
 	                     _trunc(Math.cos(collAngle + (Math.PI / 2)));
 	
 	  otherObj.vel[1] = firstTermOther * _trunc(Math.sin(collAngle));
+	
 	  otherObj.vel[1] += otherVel.mag() *
 	                     _trunc(Math.sin(angle2 - collAngle)) *
 	                     _trunc(Math.sin(collAngle + (Math.PI / 2)));

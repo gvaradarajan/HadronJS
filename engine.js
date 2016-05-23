@@ -5,6 +5,7 @@ var engine = function (options, callback) {
   var Vector = require('./vector.js');
   var movingSphere;
 
+
   if (Constants.ELASTIC === true) {
     movingSphere = require('./elastic/movingSphere.js');
   }
@@ -13,9 +14,8 @@ var engine = function (options, callback) {
 
 };
 
-
 // DEMO: A Basic Illustration of How The Engine Can Be Used. Delete the code
-//below and provide your own callback to the engine
+//below and provide your own callback to the engine.
 
 
 var newOptions = {
