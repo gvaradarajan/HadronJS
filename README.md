@@ -69,7 +69,7 @@ This code handles all possible cases of elastic collisions.
 
 [A simulation demo](http://www.gauthamvaradarajan.com/HadronJS)
 
-[demo]: ./hadrondemo.png
+[demo](./hadrondemo.png)
 
 [Browser Game built on HadronJS](http://www.gauthamvaradarajan.com/Pool)
 
