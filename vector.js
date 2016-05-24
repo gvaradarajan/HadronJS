@@ -95,4 +95,33 @@ Vector.prototype.rotate = function (angle) {
   return new Vector(newX, newY);
 };
 
+Vector.prototype.reflectOffVector = function (v2, mass1, mass2, collAngle) {
+  var result = new Vector(0,0);
+
+  var angle1 = this.findTheta();
+  var angle2 = v2.findTheta();
+
+  var firstTermThis = (this.mag() *
+                       _trunc(Math.cos(angle1-collAngle)) *
+                      (mass1 - mass2) +
+                      (2 * mass2 * v2.mag() *
+                       _trunc(Math.cos(angle2-collAngle)))) / (mass1 + mass2);
+
+  result[0] = firstTermThis * _trunc(Math.cos(collAngle));
+
+  result[0] += this.mag() *
+                 _trunc(Math.sin(angle1 - collAngle)) *
+                 _trunc(Math.cos(collAngle + (Math.PI / 2)));
+
+  result[1] = firstTermThis * _trunc(Math.sin(collAngle));
+
+  result[1] += this.mag() *
+                 _trunc(Math.sin(angle1 - collAngle)) *
+                 _trunc(Math.sin(collAngle + (Math.PI / 2)));
+
+   result[1] = -result[1];
+
+  return result;
+};
+
 module.exports = Vector;

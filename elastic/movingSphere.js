@@ -1,9 +1,22 @@
 
 var Vector = require('../vector.js');
+var Util = require('../util/util.js');
 var Constants = require('../config_constants.js');
 
 var _trunc = function (num) {
   return parseFloat(num.toFixed(4));
+};
+
+var _randomParams = function () {
+  var creationParams = {};
+  var density = Constants.CONST_DENSITY;
+  var radius = (Math.random() * 15) + 10;
+  creationParams.color = _randomColor();
+  creationParams.pos = _randomPos();
+  creationParams.vel = new Vector(Math.random() * 7, Math.random() * 7);
+  creationParams.radius = radius;
+  creationParams.mass = Math.pow(radius, 3) * (4/3) * Math.PI * density;
+  return creationParams;
 };
 
 var movingSphere = function (settings) {
@@ -16,16 +29,7 @@ var movingSphere = function (settings) {
 
 movingSphere.createRandom = function (otherSpheres) {
   var resultSphere;
-  var creationParams = {};
-  var density = Constants.CONST_DENSITY;
-  var radius = (Math.random() * 15) + 10;
-  var mass = Math.pow(radius, 3) * (4/3) * Math.PI * density;
-  creationParams.color = "#FF" + Math.round((Math.random() * 9999));
-  creationParams.pos = [(Constants.DIM_X - 42) * Math.random() + 21,
-                        (Constants.DIM_Y - 42) * Math.random() + 21];
-  creationParams.vel = new Vector(Math.random() * 7, Math.random() * 7);
-  creationParams.radius = radius;
-  creationParams.mass = mass;
+  var creationParams = Util.randomParams();
   resultSphere = new movingSphere(creationParams);
   var invalid = false;
   for (var i = 0; i < otherSpheres.length; i++) {
@@ -109,7 +113,8 @@ movingSphere.prototype.getCollisionAngle = function (otherObj) {
 };
 
 movingSphere.prototype.isCollidedWith = function (otherObj) {
-  var distance = new Vector(otherObj.pos[0] - this.pos[0], otherObj.pos[1] - this.pos[1]);
+  var distance = new Vector(otherObj.pos[0] - this.pos[0],
+                            otherObj.pos[1] - this.pos[1]);
   if (distance.mag() <= (this.radius + otherObj.radius)) {
     return true;
   }
@@ -164,47 +169,9 @@ movingSphere.prototype.handleCollision = function (otherObj) {
   var thisVel = this.vel.rotate(resultRotation);
   var otherVel = otherObj.vel.rotate(resultRotation);
 
-  var angle1 = thisVel.findTheta();
-  var angle2 = otherVel.findTheta();
+  this.vel = thisVel.reflectOffVector(otherVel, mass1, mass2, collAngle);
 
-  var firstTermThis = (thisVel.mag() *
-                       _trunc(Math.cos(angle1-collAngle)) *
-                      (mass1 - mass2) +
-                      (2 * mass2 * otherVel.mag() *
-                       _trunc(Math.cos(angle2-collAngle)))) / (mass1 + mass2);
-
-  this.vel[0] = firstTermThis * _trunc(Math.cos(collAngle));
-
-  this.vel[0] += thisVel.mag() *
-                 _trunc(Math.sin(angle1 - collAngle)) *
-                 _trunc(Math.cos(collAngle + (Math.PI / 2)));
-
-  this.vel[1] = firstTermThis * _trunc(Math.sin(collAngle));
-
-  this.vel[1] += thisVel.mag() *
-                 _trunc(Math.sin(angle1 - collAngle)) *
-                 _trunc(Math.sin(collAngle + (Math.PI / 2)));
-
-  var firstTermOther = (otherVel.mag() *
-                       _trunc(Math.cos(angle2-collAngle)) *
-                       (mass2 - mass1) +
-                       (2 * mass1 * thisVel.mag() *
-                       _trunc(Math.cos(angle1-collAngle)))) / (mass1 + mass2);
-
-  otherObj.vel[0] = firstTermOther * _trunc(Math.cos(collAngle));
-
-  otherObj.vel[0] += otherVel.mag() *
-                     _trunc(Math.sin(angle2 - collAngle)) *
-                     _trunc(Math.cos(collAngle + (Math.PI / 2)));
-
-  otherObj.vel[1] = firstTermOther * _trunc(Math.sin(collAngle));
-
-  otherObj.vel[1] += otherVel.mag() *
-                     _trunc(Math.sin(angle2 - collAngle)) *
-                     _trunc(Math.sin(collAngle + (Math.PI / 2)));
-
-  otherObj.vel[1] = -otherObj.vel[1];
-  this.vel[1] = -this.vel[1];
+  otherObj.vel = otherVel.reflectOffVector(thisVel, mass2, mass1, collAngle);
 
   this.vel = this.vel.rotate(-resultRotation);
   otherObj.vel = otherObj.vel.rotate(-resultRotation);
