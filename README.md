@@ -69,7 +69,7 @@ This code handles all possible cases of elastic collisions.
 
 [A simulation demo](http://www.gauthamvaradarajan.com/HadronJS)
 
-[demo](./hadrondemo.png)
+![demo]
 
 [Browser Game built on HadronJS](http://www.gauthamvaradarajan.com/Pool)
 
@@ -77,3 +77,6 @@ This code handles all possible cases of elastic collisions.
 * [ ] Support for inelastic collisions
 * [ ] Support for electromagnetic and gravitational interaction
 * [ ] Support for objects of other shapes
+
+
+[demo]: ./hadrondemo.png
